@@ -1,0 +1,20 @@
+/* A light document for paper and PDF. The app's dark screens are hidden; #print holds the content. */
+@page{margin:16mm 14mm}
+html,body{height:auto!important;overflow:visible!important;background:#fff!important;color:#141414!important;display:block!important}
+body>*:not(#print){display:none!important}
+#print{display:block!important;font-family:Jost,"Century Gothic",sans-serif;font-size:10.5pt;line-height:1.45;color:#141414}
+#print header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #141414;padding-bottom:6pt;margin-bottom:14pt}
+#print header b{font-family:"Bodoni Moda",Didot,serif;font-style:italic;font-weight:800;font-size:16pt}
+#print h1{font-family:"Bodoni Moda",Didot,serif;font-weight:800;font-size:28pt;line-height:1;margin:0 0 8pt;letter-spacing:-.02em}
+#print h2{font-family:"Bodoni Moda",Didot,serif;font-weight:800;font-size:15pt;margin:18pt 0 6pt;break-after:avoid}
+#print h3{font-family:"Bodoni Moda",Didot,serif;font-weight:700;font-size:12.5pt;margin:0 0 4pt;display:flex;justify-content:space-between;gap:10pt;break-after:avoid}
+#print h3 span{font-family:Jost,sans-serif;font-weight:500;font-size:9.5pt;color:#555}
+#print table{width:100%;border-collapse:collapse;margin:6pt 0}
+#print th,#print td{text-align:left;vertical-align:top;padding:5pt 6pt;border-bottom:.6pt solid #ccc}
+#print th{font-weight:600;font-size:9pt;color:#555}
+#print tr,#print .pm,#print section{break-inside:avoid}
+#print .pm{border-top:.6pt solid #ccc;padding-top:8pt;margin-top:10pt}
+#print .pcols{display:grid;grid-template-columns:1fr 1.3fr;gap:14pt}
+#print ul,#print ol{margin:0;padding-left:14pt}
+#print li{margin:2pt 0}
+#print p{margin:4pt 0}

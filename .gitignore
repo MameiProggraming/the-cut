@@ -1,0 +1,6 @@
+# Never publish: the likeness photos live outside this folder and must stay out of the site.
+reference/
+# Windows and OneDrive files
+desktop.ini
+Thumbs.db
+*.tmp
