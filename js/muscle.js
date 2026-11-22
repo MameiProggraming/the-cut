@@ -5,7 +5,12 @@ export const WORKS = {
   'romanian-deadlift': ['hamstrings', 'glutes', 'lowback'], 'seated-cable-row': ['lats', 'traps', 'reardelts', 'biceps'], 'flat-db-press': ['chest', 'delts', 'triceps'],
   'leg-curl': ['hamstrings', 'calves'], 'face-pull': ['reardelts', 'traps'], 'cable-woodchop': ['obliques', 'abs'], 'hanging-leg-raise': ['abs', 'forearms'],
   'bulgarian-split-squat': ['quads', 'glutes'], 'pull-up': ['lats', 'biceps', 'forearms'], 'overhead-press': ['delts', 'triceps', 'traps'],
-  'single-arm-db-row': ['lats', 'traps', 'biceps'], 'db-curl': ['biceps', 'forearms'], 'triceps-rope-pulldown': ['triceps'], 'suitcase-carry': ['obliques', 'forearms', 'traps']
+  'single-arm-db-row': ['lats', 'traps', 'biceps'], 'db-curl': ['biceps', 'forearms'], 'triceps-rope-pulldown': ['triceps'], 'suitcase-carry': ['obliques', 'forearms', 'traps'],
+  /* Mobility: what each move stretches or frees, on the same map */
+  'hip-90-90': ['glutes'], 'worlds-greatest-stretch': ['quads', 'hamstrings', 'glutes'], 'couch-stretch': ['quads'], 'cossack-squat': ['quads', 'glutes', 'hamstrings'],
+  'deep-squat-hold': ['glutes', 'quads', 'calves'], 'ankle-rocks': ['calves'], 'supine-hamstring-stretch': ['hamstrings', 'calves'], 'pigeon-stretch': ['glutes'],
+  'cat-cow': ['lowback', 'traps'], 'thread-the-needle': ['traps', 'reardelts', 'lats'], 'open-book': ['chest', 'obliques'], 'child-pose-side-reach': ['lats', 'obliques'],
+  'sphinx': ['abs', 'lowback'], 'wall-slide': ['traps', 'delts'], 'sleeper-stretch': ['reardelts', 'delts'], 'supine-twist': ['obliques', 'lowback', 'glutes']
 };
 export function sessionMuscles(s) { const out = new Set(); s.moves.forEach(m => (WORKS[m.ex] || []).forEach(x => out.add(x))); return out; }
 

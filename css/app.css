@@ -424,3 +424,8 @@ input,textarea,[contenteditable]{user-select:text;-webkit-user-select:text}
   #toast{left:calc(50% - var(--u)*270);right:calc(50% - var(--u)*270);bottom:calc(var(--u)*44)}
   .sheet-on #toast,.live-on #toast{bottom:calc(var(--u)*44)}
 }
+
+/* The mobility line in the credit roll: a square node in the session's own tint */
+.row.mob .time{color:var(--ml)}
+.row.mob .node{border-radius:calc(var(--u)*3);box-shadow:inset 0 0 0 2px var(--ml)}
+.row.mob[aria-pressed=true] .node{background:var(--ml);box-shadow:none}

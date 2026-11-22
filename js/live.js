@@ -1,10 +1,10 @@
 /* Live session mode: one move full-screen, sets as large tap marks, the rest timer as a film leader counting
    down to the next set, the next move previewed, the screen kept awake. Nothing is saved but the last weight. */
-import { h, add, $, qs, qsa, t, tr, fmt, ex, exName, weekNo, CHECK, bus, toast, sound, SESSIONS } from './core.js';
+import { h, add, $, qs, qsa, t, tr, fmt, ex, exName, weekNo, dow, CHECK, bus, toast, sound, SESSIONS, ALTS } from './core.js';
 import { lifts, today as day, week as wk, weights, ymd } from './store.js';
 import { openLayer, closeTop } from './sheet.js';
 import { play, still } from './figure.js';
-import { moveEx, repsText, restFor, loadLabel, loadUnit, loadStep, sessName, openExercise } from './train.js';
+import { moveEx, repsText, restFor, loadLabel, loadUnit, loadStep, sessName, sessLabel, openExercise } from './train.js';
 import { shareCanvas } from './card.js';
 
 const PLUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>', MINUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>';
@@ -19,10 +19,11 @@ async function wake(on) {
 
 export function startLive(s) {
   const phone = $('phone');
-  const state = { i: 0, sets: s.moves.map(m => new Array(m.sets).fill(false)), t0: Date.now(), timer: null, stopFig: () => {} };
+  /* Mobility: one mark per side per round; a hold mark runs its own timer */
+  const state = { i: 0, sets: s.moves.map(m => new Array(m.sets * (s.mob && m.per ? 2 : 1)).fill(false)), t0: Date.now(), timer: null, stopFig: () => {} };
   const first = state.sets.findIndex(x => x.some(v => !v)); state.i = Math.max(0, first);
   const onVis = () => { if (document.visibilityState === 'visible' && phone.classList.contains('live-on')) wake(true); };
-  openLayer({ cls: 'live', label: t('Session {s}, live', { s: s.id }), closeText: t('End'),
+  openLayer({ cls: 'live' + (s.mob ? '.mobl' : ''), label: s.mob ? t('Mobility {s}, live', { s: s.id }) : t('Session {s}, live', { s: s.id }), closeText: t('End'),
     onClose: () => { redraw = null; state.stopFig(); clearInterval(state.timer); wake(false); phone.classList.remove('live-on'); document.removeEventListener('visibilitychange', onVis); bus.emit('today'); },
     build: (b, layer) => {
       layer.style.setProperty('--li', s.light); layer.style.setProperty('--lic', s.lic);
@@ -44,7 +45,10 @@ function draw(b, s, st) {
   const fig = h('div.lvfig');
   const cues = tr('exercises', e.id, 'cues', e.cues); let ci = 0;
   const cue = h('button.lvcue', { type: 'button', 'aria-label': t('Next cue'), text: cues[0], onclick: () => { ci = (ci + 1) % cues.length; cue.textContent = cues[ci]; } });
-  const setBtns = sets.map((on, n) => h('button.set', { type: 'button', 'aria-pressed': String(on), 'aria-label': t('Set {n} of {of}', { n: n + 1, of: sets.length }), html: '<span class="num">' + (n + 1) + '</span><span class="lab">' + t('set') + '</span>' + CHECK, onclick: () => tapSet(n) }));
+  const mob = !!s.mob, side = (n) => !m.per ? null : n % 2 ? t('Right') : t('Left'), sideName = (n) => n % 2 ? t('Right side') : t('Left side'), round = (n) => m.per ? Math.floor(n / 2) + 1 : n + 1;
+  const setBtns = sets.map((on, n) => h('button.set', { type: 'button', 'aria-pressed': String(on),
+    'aria-label': mob ? (m.hold ? t('Hold {n} of {of}', { n: n + 1, of: sets.length }) : t('Set {n} of {of}', { n: n + 1, of: sets.length })) + (side(n) ? ', ' + side(n) : '') : t('Set {n} of {of}', { n: n + 1, of: sets.length }),
+    html: '<span class="num">' + (mob && m.hold ? m.hold : round(n)) + '</span><span class="lab">' + (mob ? (side(n) || (m.hold ? t('seconds') : t('set'))) : t('set')) + '</span>' + CHECK, onclick: () => tapSet(n) }));
   const val = h('span.num', { html: kg == null ? '–' : loadLabel(e, kg).replace(' kg', '<small> kg</small>') });
   const vlab = h('span.lab', { text: kg == null ? t('Tap + to set the weight') : t('Last lifted, {u}', { u: loadUnit(e) }) });
   const bump = (d) => {
@@ -60,18 +64,36 @@ function draw(b, s, st) {
       h('div.lvbg', null, h('img', { src: 'art/gym-p0.webp', alt: '' })),
       prog,
       h('div.lvhead', null,
-        h('span.lab', { text: t('Session {s}', { s: s.id }) + '  ·  ' + t('{n} of {of}', { n: st.i + 1, of: s.moves.length }) }),
+        h('span.lab', { text: sessLabel(s) + '  ·  ' + t('{n} of {of}', { n: st.i + 1, of: s.moves.length }) }),
         h('h2', { text: exName(e) }),
-        h('div.meta', null, h('span.num', { text: repsText(m) }), h('span.lab', { text: t('Rest {n} s', { n: restFor(e) }) }), m.hint && e.id === m.ex ? h('span.lab', { text: t(m.hint) }) : null)),
+        h('div.meta', null, h('span.num', { text: repsText(m) }), mob ? h('span.lab', { text: m.hold ? t('Tap a mark to start the hold') : t('Slow reps') }) : h('span.lab', { text: t('Rest {n} s', { n: restFor(e) }) }), m.hint && e.id === m.ex ? h('span.lab', { text: t(m.hint) }) : null)),
       fig, cue,
       h('div.lvsets', null, ...setBtns),
-      h('div.lvweight', null, h('button', { type: 'button', 'aria-label': t('Less weight'), html: MINUS, onclick: () => bump(-loadStep(e)) }), h('div.v', null, val, vlab), h('button', { type: 'button', 'aria-label': t('More weight'), html: PLUS, onclick: () => bump(loadStep(e)) })),
+      mob ? null : h('div.lvweight', null, h('button', { type: 'button', 'aria-label': t('Less weight'), html: MINUS, onclick: () => bump(-loadStep(e)) }), h('div.v', null, val, vlab), h('button', { type: 'button', 'aria-label': t('More weight'), html: PLUS, onclick: () => bump(loadStep(e)) })),
       nextI >= 0 ? h('button.lvnext', { type: 'button', onclick: () => { st.i = nextI; draw(b, s, st); } }, h('span.lab', { text: t('Next') }), h('b', { text: exName(moveEx(s, nextI)) }), h('span.num', { text: repsText(s.moves[nextI]) })) : h('div.lvnext', null, h('span.lab', { text: t('Last move. Then the session is done.') })),
-      h('div.lvacts', null, h('button.ghost', { type: 'button', text: t('Swap'), onclick: (ev) => openExercise(e.id, ev.currentTarget, { session: s, idx: st.i }) }), nextBtn)),
+      h('div.lvacts', null, h('button.ghost', { type: 'button', text: ALTS[m.ex] ? t('Swap') : t('How to'), onclick: (ev) => openExercise(e.id, ev.currentTarget, { session: s, idx: st.i }) }), nextBtn)),
     leader.el);
   st.stopFig = play(fig, e.id);
   st.showLeader = leader.show;
+  const advance = () => { st.i = nextI; draw(b, s, st); };
+  function mark(n, on) {
+    sets[n] = on; setBtns[n].setAttribute('aria-pressed', String(on));
+    qsa('i', prog)[st.i].className = sets.every(Boolean) ? 'done' : 'now';
+    nextBtn.setAttribute('aria-pressed', String(sets.every(Boolean)));
+  }
+  /* Mobility: a hold runs the leader, then changes sides by itself; reps are tapped; no rest between */
+  function tapMob(n) {
+    if (sets[n]) { mark(n, false); sound('click'); return; }
+    const then = () => {
+      const nx = sets.findIndex(x => !x);
+      if (nx >= 0) { if (m.hold) leader.show(6, side(nx) ? t('Next: {n}', { n: sideName(nx) }) : t('Next: round {n}', { n: round(nx) }), () => tapMob(nx), { title: side(nx) ? t('Switch sides') : t('Reset'), go: t('Go now') }); return; }
+      if (nextI >= 0) leader.show(10, t('Next: {n}', { n: exName(moveEx(s, nextI)) }), advance, { title: t('Set up'), go: t('Go now') });
+    };
+    if (m.hold) { leader.show(m.hold, side(n) ? sideName(n) : exName(e), () => { mark(n, true); then(); }, { title: t('Hold'), go: t('End hold') }); sound('click'); return; }
+    mark(n, true); sound('click'); then();
+  }
   function tapSet(n) {
+    if (mob) { tapMob(n); return; }
     const on = !sets[n];
     sets[n] = on;
     setBtns[n].setAttribute('aria-pressed', String(on));
@@ -88,17 +110,19 @@ function draw(b, s, st) {
 /* The film leader */
 function buildLeader(b, s, st) {
   const R = 46;
+  const goB = h('button.go', { type: 'button', text: t('Go now') });
   const wedge = document.createElementNS('http://www.w3.org/2000/svg', 'path'); wedge.setAttribute('class', 'wedge');
   const hand = document.createElementNS('http://www.w3.org/2000/svg', 'line'); hand.setAttribute('class', 'hand'); hand.setAttribute('x1', 50); hand.setAttribute('y1', 50);
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('viewBox', '0 0 100 100'); svg.setAttribute('aria-hidden', 'true');
   svg.innerHTML = '<line class="cross" x1="0" y1="50" x2="100" y2="50"/><line class="cross" x1="50" y1="0" x2="50" y2="100"/><circle class="ring2" cx="50" cy="50" r="40"/><circle class="ring" cx="50" cy="50" r="' + R + '"/>';
   svg.prepend(wedge); svg.append(hand);
   const n = h('span.n', { text: '90' });
-  const what = h('span.lab', { text: '' });
+  const what = h('span.lab', { text: '' }), ttl = h('b', { text: t('Rest') });
   const el = h('div.leader', { role: 'timer', 'aria-live': 'off' },
     h('div.ldial', null, svg, n),
-    h('div.lt', null, h('b', { text: t('Rest') }), what),
-    h('div.lacts', null, h('button.ghost', { type: 'button', text: t('+15 s'), onclick: () => { end += 15000; } }), h('button.go', { type: 'button', text: t('Go now'), onclick: () => stop(true) })));
+    h('div.lt', null, ttl, what),
+    h('div.lacts', null, h('button.ghost', { type: 'button', text: t('+15 s'), onclick: () => { end += 15000; } }), goB));
+  goB.onclick = () => stop(true);
   let end = 0, total = 90, after = null, raf = 0;
   function frame() {
     const left = Math.max(0, end - Date.now()), sec = Math.ceil(left / 1000);
@@ -110,9 +134,10 @@ function buildLeader(b, s, st) {
     if (left <= 0) { stop(false); return; }
     raf = requestAnimationFrame(frame);
   }
-  function show(sec, label, next) {
+  function show(sec, label, next, o = {}) {
     total = sec; end = Date.now() + sec * 1000; after = next || null;
     what.textContent = label || '';
+    ttl.textContent = o.title || t('Rest'); goB.textContent = o.go || t('Go now');
     el.classList.add('on');
     cancelAnimationFrame(raf); raf = requestAnimationFrame(frame);
     clearInterval(st.timer); st.timer = setInterval(() => { if (end && Date.now() >= end && el.classList.contains('on')) stop(false); }, 500);
@@ -129,7 +154,7 @@ function finish(b, s, st) {
   st.stopFig(); clearInterval(st.timer);
   const n = weekNo();
   day.patch(d => { d.done = s.id; });
-  const w = wk.mark(n, s.id);
+  const w = wk.mark(n, s.mob ? s.id + ':' + dow() : s.id);
   const sets = st.sets.flat().filter(Boolean).length, moves = st.sets.filter(x => x.some(Boolean)).length;
   const mins = Math.max(1, Math.round((Date.now() - st.t0) / 60000));
   bus.emit('today');
@@ -138,9 +163,9 @@ function finish(b, s, st) {
     h('b.ft', { text: t('End of {s}', { s: sessName(s) }) }),
     h('div.fs', null,
       h('div', null, h('span.num', { text: String(moves) }), h('span.lab', { text: t('moves') })),
-      h('div', null, h('span.num', { text: String(sets) }), h('span.lab', { text: t('sets') })),
+      s.mob ? null : h('div', null, h('span.num', { text: String(sets) }), h('span.lab', { text: t('sets') })),
       h('div', null, h('span.num', { text: String(mins) }), h('span.lab', { text: t('minutes') }))),
-    h('p.sdesc', { style: { marginTop: 'calc(var(--u)*18)', textAlign: 'center' }, text: t('Protein within the hour. The weights you used are saved for next time.') }),
+    h('p.sdesc', { style: { marginTop: 'calc(var(--u)*18)', textAlign: 'center' }, text: s.mob ? t('Fifteen minutes that pay you back on court.') : t('Protein within the hour. The weights you used are saved for next time.') }),
     h('button.go', { type: 'button', html: '<span>' + t('Back to today') + '</span>', onclick: () => { closeTop(); bus.emit('go', { view: 'today' }); } })));
 }
 

@@ -770,6 +770,173 @@ export const EXERCISES = {
     view: 'front',
     start: 'Standing tall, feet hip-width, one arm locked straight overhead holding a dumbbell, biceps beside the ear, other arm at the side.',
     end: 'Mid-stride walking forward, arm still vertical overhead, torso upright with no lean.'
+  },
+
+  /* ---------- Mobility M1: Hips & Legs ----------
+     pattern and kind 'mobility': no rest timer, no weight, done on the floor at home. */
+
+  'hip-90-90': {
+    name: '90/90 hip switch',
+    pattern: 'mobility', kind: 'mobility', equipment: [], load: 'none',
+    cues: ['Sit tall, both knees bent to 90°', 'Swing both knees to the other side, hands off the floor if you can', 'Pause and lean over the front shin'],
+    mistake: 'Collapsing back onto the hands, which takes the hips out of the movement.',
+    tennis: 'Trains the hip rotation you load into on an open-stance forehand.',
+    view: 'side',
+    start: 'Seated on the floor, torso upright, front leg bent 90° in front of the body, back leg bent 90° behind, hands lightly on the floor beside the hips.',
+    end: 'Both knees swung over to the other side, torso still upright, leaning slightly over the new front shin.'
+  },
+  'worlds-greatest-stretch': {
+    name: 'World’s greatest stretch',
+    pattern: 'mobility', kind: 'mobility', equipment: [], load: 'none',
+    cues: ['Long lunge, back knee off the floor', 'Elbow down to the inside of the front foot', 'Turn and reach the same arm to the ceiling'],
+    mistake: 'Letting the back knee sag and the hips drop, so the front of the back hip never stretches.',
+    tennis: 'Opens the hip flexors, groin and upper back together, the lunge-and-turn shape of a wide forehand.',
+    view: 'side',
+    start: 'Deep lunge, front foot flat, back leg long with the knee just off the floor, both hands on the floor inside the front foot.',
+    end: 'Same lunge, torso turned open towards the front leg, the inside arm reaching straight up to the ceiling, eyes on the hand.'
+  },
+  'couch-stretch': {
+    name: 'Couch stretch',
+    pattern: 'mobility', kind: 'mobility', equipment: [], load: 'none',
+    cues: ['Back knee in the corner of wall and floor, shin up the wall or sofa', 'Squeeze the glute of the back leg', 'Come upright only as far as the ribs stay down'],
+    mistake: 'Arching the lower back to get upright, which stretches nothing.',
+    tennis: 'Lengthens the quads and hip flexors that tighten from split-steps and a day at the desk.',
+    view: 'side',
+    start: 'Kneeling lunge facing away from a wall, back knee on the floor against it, back shin vertical up the wall, front foot flat, hands on the front knee, torso leaning forward.',
+    end: 'Same position with the torso upright, glute squeezed, hips pushed gently forward.'
+  },
+  'cossack-squat': {
+    name: 'Cossack squat',
+    pattern: 'mobility', kind: 'mobility', equipment: [], load: 'none',
+    cues: ['Wide stance, toes turned slightly out', 'Sit down over one leg, the other straight with its toes up', 'Keep the heel of the bent leg down'],
+    mistake: 'Folding forward at the waist instead of sitting the hips down.',
+    tennis: 'Range and strength through the groin for wide, low reaches to the side.',
+    view: 'front',
+    start: 'Standing in a very wide stance, feet about twice shoulder-width, toes slightly out, hands together at the chest.',
+    end: 'Hips sat down over one deeply bent leg, the other leg straight to the side with the toes pointing up, chest upright, hands at the chest.'
+  },
+  'deep-squat-hold': {
+    name: 'Deep squat hold',
+    pattern: 'mobility', kind: 'mobility', equipment: [], load: 'none',
+    cues: ['Feet shoulder-width, toes out', 'Sink the hips below the knees, heels down', 'Elbows press the knees out, chest up'],
+    mistake: 'Letting the heels lift. Hold a door frame, or stand the heels on a folded towel, until they stay down.',
+    tennis: 'Owning the bottom of a squat makes low volleys and pick-ups easy on the hips and back.',
+    view: 'side',
+    start: 'Standing tall, feet shoulder-width, toes turned out, hands together at the chest.',
+    end: 'Full deep squat, hips below the knees, heels flat, torso upright, elbows pressing the knees apart, hands together.'
+  },
+  'ankle-rocks': {
+    name: 'Half-kneeling ankle rock',
+    pattern: 'mobility', kind: 'mobility', equipment: [], load: 'none',
+    cues: ['Half-kneeling, front foot a hand-length from the wall', 'Drive the front knee forward past the toes', 'The heel stays on the floor'],
+    mistake: 'Letting the heel lift or the arch roll in to fake the range.',
+    tennis: 'Ankle range for a lower first step and less strain on the knees and Achilles.',
+    view: 'side',
+    start: 'Half-kneeling, back knee on the floor, front foot flat with the shin vertical, hands resting on the front knee.',
+    end: 'Same position with the front knee driven forward well past the toes, heel still flat on the floor, torso upright.'
+  },
+  'supine-hamstring-stretch': {
+    name: 'Lying hamstring stretch',
+    pattern: 'mobility', kind: 'mobility', equipment: [], load: 'none',
+    cues: ['On your back, a towel or band round one foot', 'Raise the straight leg until you feel the back of the thigh', 'Keep the other leg flat on the floor'],
+    mistake: 'Bending the knee and lifting the hip to get the leg higher.',
+    tennis: 'Hamstring length to reach low balls, and an easier hinge for the lower back in the serve.',
+    view: 'side',
+    start: 'Lying on the back, both legs straight on the floor, a towel looped round one foot and held in both hands.',
+    end: 'Same position with the towelled leg raised straight up towards vertical, the other leg flat on the floor.'
+  },
+  'pigeon-stretch': {
+    name: 'Pigeon stretch',
+    pattern: 'mobility', kind: 'mobility', equipment: [], load: 'none',
+    cues: ['Front shin across the body, back leg long behind', 'Square the hips to the floor', 'Walk the hands forward and breathe into the outside of the hip'],
+    mistake: 'Rolling onto the outside of the front hip, so the stretch disappears.',
+    tennis: 'Releases the deep glute that drives every push-off and tightens from court movement.',
+    view: 'side',
+    start: 'Front leg folded in front with the shin across the body, back leg straight behind on the floor, torso upright on straight arms.',
+    end: 'Same legs with the torso folded forward over the front shin, forearms on the floor.'
+  },
+
+  /* ---------- Mobility M2: Back & Shoulders ---------- */
+
+  'cat-cow': {
+    name: 'Cat-cow',
+    pattern: 'mobility', kind: 'mobility', equipment: [], load: 'none',
+    cues: ['Hands under the shoulders, knees under the hips', 'Round the whole back up, chin to chest', 'Then let the belly drop and lift the chest, slowly'],
+    mistake: 'Rushing it, so only the neck and lower back move.',
+    tennis: 'Gets every part of the spine moving before a day of turning and serving.',
+    view: 'side',
+    start: 'On all fours, hands under shoulders, knees under hips, back rounded up towards the ceiling, head dropped.',
+    end: 'Same position with the back arched down, belly towards the floor, chest and head lifted.'
+  },
+  'thread-the-needle': {
+    name: 'Thread the needle',
+    pattern: 'mobility', kind: 'mobility', equipment: [], load: 'none',
+    cues: ['On all fours, reach one arm to the ceiling', 'Then thread it under the other arm along the floor', 'Rest the shoulder and ear down, hips stay over the knees'],
+    mistake: 'Letting the hips swing sideways, which turns the lower back instead of the upper back.',
+    tennis: 'Upper-back rotation for the shoulder turn in groundstrokes and the serve.',
+    view: 'side',
+    start: 'On all fours, one arm reaching straight up to the ceiling, chest turned open.',
+    end: 'Same knees, the reaching arm threaded under the body along the floor, that shoulder and the side of the head resting down.'
+  },
+  'open-book': {
+    name: 'Open book',
+    pattern: 'mobility', kind: 'mobility', equipment: [], load: 'none',
+    cues: ['Lie on your side, knees bent to 90° and stacked', 'Sweep the top arm open to the other side', 'Eyes follow the hand, knees stay together'],
+    mistake: 'Letting the top knee lift off the bottom one, so the hips turn and the upper back does nothing.',
+    tennis: 'Upper-back rotation and an open chest: the coil and release behind every groundstroke.',
+    view: 'side',
+    start: 'Lying on one side, hips and knees bent to 90°, arms straight out in front together at shoulder height.',
+    end: 'Same legs, the top arm swept open across to the other side, chest facing the ceiling.'
+  },
+  'child-pose-side-reach': {
+    name: 'Child’s pose side reach',
+    pattern: 'mobility', kind: 'mobility', equipment: [], load: 'none',
+    cues: ['Sit back on your heels, arms long in front', 'Walk both hands to one side', 'Sink the hips back and breathe into the ribs'],
+    mistake: 'Lifting the hips off the heels, which loses the stretch along the side.',
+    tennis: 'Lengthens the lats and side body that the serve and smash load hardest.',
+    view: 'side',
+    start: 'Kneeling, sitting back on the heels, torso folded forward, arms reaching long on the floor in front.',
+    end: 'Same fold, hips further back, arms walked over to one side, head between the arms.'
+  },
+  'sphinx': {
+    name: 'Sphinx',
+    pattern: 'mobility', kind: 'mobility', equipment: [], load: 'none',
+    cues: ['Face down on your forearms, elbows under the shoulders', 'Let the hips and belly sink into the floor', 'Long neck, shoulders away from the ears'],
+    mistake: 'Pushing up onto straight arms, so the lower back pinches.',
+    tennis: 'Gentle extension for a lower back that sits bent all day and turns all evening.',
+    view: 'side',
+    start: 'Lying face down, legs long, forehead resting on stacked hands.',
+    end: 'Chest lifted onto the forearms, elbows under the shoulders, hips and legs still on the floor, head level.'
+  },
+  'wall-slide': {
+    name: 'Wall slide',
+    pattern: 'mobility', kind: 'mobility', equipment: [], load: 'none',
+    cues: ['Back, head and forearms against the wall', 'Slide the arms up without losing contact', 'Ribs down, lower back stays near the wall'],
+    mistake: 'Arching the lower back off the wall to get the arms higher.',
+    tennis: 'Shoulder-blade control for a clean, safe overhead position in the serve.',
+    view: 'front',
+    start: 'Standing with the back against a wall, arms in a goalpost: upper arms out at shoulder height, elbows bent 90°, forearms and backs of the hands on the wall.',
+    end: 'Same stance, arms slid up the wall into a high V, elbows nearly straight, forearms still touching the wall.'
+  },
+  'sleeper-stretch': {
+    name: 'Sleeper stretch',
+    pattern: 'mobility', kind: 'mobility', equipment: [], load: 'none',
+    cues: ['Lie on your serving side, upper arm out at shoulder height, elbow at 90°', 'With the other hand, ease the forearm towards the floor', 'Stop at a mild stretch, never pain at the front of the shoulder'],
+    mistake: 'Rolling back off the shoulder or forcing the range. It should be a mild stretch at the back of the shoulder.',
+    tennis: 'Restores the inward rotation the serving shoulder loses over a season.',
+    view: 'side',
+    start: 'Lying on one side, knees bent, the bottom arm straight out in front at shoulder height with the elbow bent 90° and the forearm pointing up.',
+    end: 'Same position with the forearm eased down towards the floor in front, the top hand pressing it gently.'
+  },
+  'supine-twist': {
+    name: 'Lying twist',
+    pattern: 'mobility', kind: 'mobility', equipment: [], load: 'none',
+    cues: ['On your back, arms out in a T', 'Lower both bent knees to one side', 'Keep both shoulders on the floor and breathe out'],
+    mistake: 'Letting the opposite shoulder peel off the floor.',
+    tennis: 'Unwinds the lower back and hips after a day of one-sided rotation.',
+    view: 'side',
+    start: 'Lying on the back, knees bent with feet flat, arms out to the sides.',
+    end: 'Same position with both knees lowered together to one side towards the floor, shoulders still flat.'
   }
 };
 

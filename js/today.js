@@ -1,9 +1,10 @@
 /* Today. The day is a film in three scenes and protein is the light: each part of the day is a one-sheet,
    eating opens the exposure, and the day below is a credit roll on one centre axis. Scrolling closes the
    frame down to a pinned 2.39:1 strip. Saturday's scene is the intermission. */
-import { h, $, qs, qsa, clamp, lerp, reduce, fmt, t, tr, mealName, dayName, dayShort, monShort, weekNo, dow, sessionFor,
+import { h, $, qs, qsa, clamp, lerp, reduce, fmt, t, tr, mealName, dayName, dayShort, monShort, weekNo, dow, sessionFor, mobFor, mobMinutes,
   daySlots, totals, suggest, hm, nowMin, minToHm, WEEK, TARGET, CHECK, CHEV, setNum, setNumRaw, bus, mealById, exName, ex, sound } from './core.js';
 import { today as day, settings, flags, ymd } from './store.js';
+import { sessName } from './train.js';
 
 const LAYOUT = 1040, K0 = .6;
 /* The camera. Every shot is an anchor point in source pixels, where it lands on screen, a scale and a roll.
@@ -212,7 +213,7 @@ function renderFront() {
     nx.append(nextBtn('tennis', 'r-lmnt', '', t('LMNT, 1 packet'), null, t('before you walk on court')));
   }
   if (S.rest) {
-    fr.append(h('div.credit.rest', null, h('span', { text: t('Saturday. Full rest. Nothing.') })));
+    fr.append(h('div.credit.rest', null, h('span', { text: t('Saturday. Rest, and fifteen easy minutes of mobility.') })));
     acts.append(h('div.act.rest', null, h('button.go', { type: 'button', html: '<span>' + t('Plan the shop') + '</span>', onclick: () => ctx.openShop() })));
     const ns = 'Sunday';
     nx.append(nextBtn('rest', 'r-breakfast', '', t('Tomorrow'), null, t('Tennis, {t}', { t: settings.get().tennis || '18:30' })));
@@ -254,6 +255,14 @@ function renderRoll() {
     return h('button.row.tick', { type: 'button', id: 'r-' + id, 'aria-pressed': String(on), onclick: (e) => { day.patch(x => { x.ticks[id] = !x.ticks[id]; }); e.currentTarget.setAttribute('aria-pressed', String(!on)); sound('click'); bus.emit('today'); } },
       h('span.l', null, h('span.num.time', { text: time })), h('span.node', { html: CHECK }), h('span.rr', null, h('span.name', { text: name }), h('span.note', { text: note })));
   };
+  const mob = mobFor();
+  if (mob) {
+    const on = st.done === mob.id;
+    rows.push(h('button.row.tick.mob', { type: 'button', id: 'r-mob', 'aria-pressed': String(on), style: { '--ml': mob.light },
+      'aria-label': t('Mobility {s}, {name}, about {n} minutes. Start', { s: mob.id, name: sessName(mob), n: mobMinutes(mob) }), onclick: () => ctx.startLive(mob) },
+      h('span.l', null, h('span.num.time', { text: mob.id })), h('span.node', { html: CHECK }),
+      h('span.rr', null, h('span.name', { text: sessName(mob) }), h('span.note', { text: on ? t('Done today') : w.tennis ? t('Mobility, about {n} min. Any time before tennis.', { n: mobMinutes(mob) }) : t('Mobility, about {n} min. Any time today.', { n: mobMinutes(mob) }) }))));
+  }
   for (const s of slots) {
     if (s.id === 'breakfast' || (s.id === 'pre')) { rows.push(mealRow(s)); if (s.id === 'breakfast') rows.push(tick('creatine', '5 g', t('Creatine'), t('Any time'))); continue; }
     if (s.id === 'lunch') {

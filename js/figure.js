@@ -8,18 +8,20 @@ const L = { torso: 30, neck: 12, ua: 17, fa: 15, th: 24, sh: 23, ft: 8 };
 const pt = (o, len, ang) => [o[0] + len * Math.sin(ang * R), o[1] + len * Math.cos(ang * R)];
 
 /* Side view. Angles in degrees. Torso t: from straight up, + leans forward. Limbs: from straight down, + forward.
-   Legs [thigh, knee bend, foot angle], arms [upper arm, elbow bend, upper-arm length scale for foreshortening]. */
+   Legs [thigh, knee bend, foot angle, thigh length scale, shin length scale], arms [upper arm, elbow bend,
+   upper-arm length scale, forearm length scale]; the scales foreshorten a limb that points at or away from the eye. */
 function side(p) {
   const hip = [p.x == null ? 50 : p.x, p.y == null ? 50 : p.y], t = p.t || 0;
   const sh = [hip[0] + L.torso * Math.sin(t * R), hip[1] - L.torso * Math.cos(t * R)];
   const ht = t + (p.hd || 0);
   const head = [sh[0] + L.neck * Math.sin(ht * R), sh[1] - L.neck * Math.cos(ht * R)];
-  const leg = (q) => { const knee = pt(hip, L.th * (q[3] || 1), q[0]), sa = q[0] - q[1], ank = pt(knee, L.sh, sa), fa = q[2] == null ? 0 : q[2]; const toe = [ank[0] + L.ft * Math.cos(fa * R), ank[1] - L.ft * Math.sin(fa * R)]; return { knee, ank, toe }; };
+  const leg = (q) => { const knee = pt(hip, L.th * (q[3] || 1), q[0]), sa = q[0] - q[1], ank = pt(knee, L.sh * (q[4] || 1), sa), fa = q[2] == null ? 0 : q[2]; const toe = [ank[0] + L.ft * Math.cos(fa * R), ank[1] - L.ft * Math.sin(fa * R)]; return { knee, ank, toe }; };
   const arm = (q) => { const el = pt(sh, L.ua * (q[2] || 1), q[0]), hand = pt(el, L.fa * (q[3] || 1), q[0] + q[1]); return { el, hand }; };
   const l1 = leg(p.l1 || [3, 0, 0]), l2 = leg(p.l2 || [-3, 0, 0]), a1 = arm(p.a1 || [4, 6]), a2 = arm(p.a2 || [-3, 6]);
-  return { hip, sh, head, l1, l2, a1, a2 };
+  return { hip, sh, head, l1, l2, a1, a2, sp: p.sp || 0, t };
 }
-/* Front view, for raises and flies. Arms [abduction from down, elbow bend]; torso can tilt and foreshorten. */
+/* Front view, for raises and flies. Arms [abduction from down, elbow bend]; torso can tilt and foreshorten.
+   legsR / legsL [abduction, knee bend, thigh scale, shin scale] set each side apart; ground:false keeps y as given. */
 function front(p) {
   const cx = p.x == null ? 50 : p.x, hy = p.y == null ? 50 : p.y, tl = (p.torso || 1) * L.torso, lean = p.lean || 0;
   const hipC = [cx, hy], shC = [cx + tl * Math.sin(lean * R), hy - tl * Math.cos(lean * R)];
@@ -30,9 +32,9 @@ function front(p) {
     const ar = p.one && s < 0 ? [6, 4] : (p.arms || [8, 8]); const aa = ar[0] * s, ae = ar[1] * s, ul = p.one && s < 0 ? 1 : (p.ua || 1);
     const el = [sh[0] + L.ua * ul * Math.sin(aa * R), sh[1] + L.ua * ul * Math.cos(aa * R)];
     const hand = [el[0] + L.fa * Math.sin((aa + ae) * R), el[1] + L.fa * Math.cos((aa + ae) * R)];
-    const la = (p.legs || [4, 0])[0] * s, kb = (p.legs || [4, 0])[1], ls = p.ls || 1;
+    const lg = (s > 0 ? p.legsR : p.legsL) || p.legs || [4, 0], la = lg[0] * s, kb = lg[1], ls = lg[2] || p.ls || 1;
     const knee = [hp[0] + L.th * ls * Math.sin(la * R), hp[1] + L.th * ls * Math.cos(la * R)];
-    const ank = [knee[0] + L.sh * (p.ss || 1) * Math.sin((la - kb * s) * R), knee[1] + L.sh * (p.ss || 1) * Math.cos((la - kb * s) * R)];
+    const ss = lg[3] || p.ss || 1, ank = [knee[0] + L.sh * ss * Math.sin((la - kb * s) * R), knee[1] + L.sh * ss * Math.cos((la - kb * s) * R)];
     return { sh, hp, el, hand, knee, ank, toe: [ank[0] + s * 4, ank[1]] };
   };
   return { front: true, shC, hipC, head, r: side1(1), l: side1(-1) };
@@ -47,6 +49,8 @@ const HINGE = (d, o) => Object.assign({ t: d, l1: [-6, 14, 0], l2: [-10, 14, 0],
 const SEAT = { t: -6, l1: [90, 90, 0], l2: [86, 88, 0], ground: false, y: 69 };
 const LIE = { x: 52, y: 62, ground: false, t: -90, hd: 0, l1: [62, 62, 0], l2: [56, 56, 0] };
 const INCL = { x: 50, y: 69, ground: false, t: -58, l1: [80, 80, 0], l2: [76, 76, 0] };
+/* Lying on one side, seen from the front: head to the left, knees bent forward, the top leg resting on the bottom one */
+const SIDE = { ground: false, x: 56, y: 90, t: -90, hd: 0, l1: [88, -24, -30, .7], l2: [66, -55, -30, .7] };
 const HANG = { ground: false, x: 50, y: 62, t: 0, l1: [6, 4, -40], l2: [2, 4, -40], a1: [178, 0], a2: [176, 0] };
 
 export const POSES = {
@@ -114,7 +118,27 @@ export const POSES = {
   'skull-crusher': { props: ['flat', 'db1', 'db2'], a: Object.assign({}, LIE, { a1: [176, 0], a2: [172, 0] }), b: Object.assign({}, LIE, { a1: [196, -118], a2: [192, -118] }) },
   'suitcase-carry': { props: ['db1'], a: S({ a1: [2, 0], a2: [-4, 8] }), b: Object.assign({}, WALK, { a1: [2, 0], a2: [-14, 10] }) },
   'kettlebell-suitcase-carry': { props: ['kb1'], a: S({ a1: [2, 0], a2: [-4, 8] }), b: Object.assign({}, WALK, { a1: [2, 0], a2: [-14, 10] }) },
-  'waiters-walk': { props: ['dbup1'], a: S({ a1: [178, 0], a2: [-4, 8] }), b: Object.assign({}, WALK, { a1: [178, 0], a2: [-14, 10] }) }
+  'waiters-walk': { props: ['dbup1'], a: S({ a1: [178, 0], a2: [-4, 8] }), b: Object.assign({}, WALK, { a1: [178, 0], a2: [-14, 10] }) },
+
+  /* Mobility M1: Hips & Legs */
+  'hip-90-90': { view: 'front', a: { ground: false, y: 92.4, legsR: [94.9, 34.9, 1, .3], legsL: [-155, -89, .27, 1], arms: [26, 6] }, b: { ground: false, y: 92.4, legsR: [205, 271, .27, 1], legsL: [-265, -325, 1, .3], arms: [26, 6] } },
+  'worlds-greatest-stretch': { props: ['mat'], a: { ground: false, x: 45, y: 74, t: 74, hd: 10, l1: [90, 90, 0], l2: [-41.5, 53.5, -61], a1: [-18, 0], a2: [-22, 0] }, b: { ground: false, x: 45, y: 74, t: 64, hd: -40, l1: [90, 90, 0], l2: [-41.5, 53.5, -61], a1: [180, 0], a2: [-12, 0] } },
+  'couch-stretch': { props: ['mat', 'wallL'], a: { ground: false, x: 38.76, y: 74.67, t: 20, l1: [-24, 156, 80], l2: [92.6, 91.9, 0], a1: [-3.1, 66.4], a2: [-7.1, 66.4] }, b: { ground: false, x: 43.11, y: 77.18, t: -4, l1: [-36, 144, 80], l2: [97.8, 107.5, 0], a1: [-40, 72], a2: [-44, 72] } },
+  'cossack-squat': { view: 'front', a: { x: 50, legsR: [32.9, 0, 1], legsL: [32.9, 0, 1], arms: [10, -136] }, b: { x: 68.3, legsR: [120.9, 126, .45], legsL: [68.8, 0, 1], arms: [10, -136] } },
+  'deep-squat-hold': { a: S({ a1: [24, 140], a2: [20, 140] }), b: { t: 18, l1: [112, 147, 0], l2: [108, 144, 0], a1: [30, 150], a2: [26, 150] } },
+  'ankle-rocks': { props: ['mat', 'wallR'], a: { ground: false, x: 44, y: 72.2, t: 0, l1: [88, 88, 0], l2: [-4, 98.5, -141], a1: [15, 30], a2: [11, 30] }, b: { ground: false, x: 56.3, y: 76.65, t: 4, l1: [90.1, 122.4, 0], l2: [-35.7, 66.8, -141], a1: [-2.5, 58], a2: [-6.5, 58] } },
+  'supine-hamstring-stretch': { props: ['mat', 'towel'], a: { ground: false, x: 50, y: 93.5, t: -90, hd: 8, l1: [87, 0, 90], l2: [86, 0, 90], a1: [97, 46], a2: [94, 46] }, b: { ground: false, x: 50, y: 93.5, t: -90, hd: 8, l1: [172, 0, 180], l2: [86, 0, 90], a1: [133, 26], a2: [130, 26] } },
+  'pigeon-stretch': { props: ['mat'], a: { ground: false, x: 52, y: 92, t: 20, hd: -20, l1: [-81.6, 6.4, 180], l2: [79.2, 169.2, 150, 1, .45], a1: [2, 0], a2: [-2, 0] }, b: { ground: false, x: 52, y: 92, t: 65.6, hd: 50, l1: [-81.6, 6.4, 180], l2: [79.2, 169.2, 150, 1, .45], a1: [6, 84], a2: [2, 88] } },
+
+  /* Mobility M2: Back & Shoulders */
+  'cat-cow': { props: ['mat'], a: { ground: false, x: 42, y: 72, t: 76, sp: 5, hd: 50, l1: [0, 90, 180], l2: [-2, 88, 180], a1: [8, 0], a2: [4, 0] }, b: { ground: false, x: 42, y: 72, t: 76, sp: -3.5, hd: -40, l1: [0, 90, 180], l2: [-2, 88, 180], a1: [8, 0], a2: [4, 0] } },
+  'thread-the-needle': { props: ['mat'], a: { ground: false, x: 42, y: 72, t: 76, hd: -50, l1: [0, 90, 180], l2: [-2, 88, 180], a1: [180, 0, 1, 1], a2: [30, -40] }, b: { ground: false, x: 42, y: 72, t: 125, hd: -26.4, l1: [0, 90, 180], l2: [-2, 88, 180], a1: [0, -90, .3, .3], a2: [115.2, -99.7] } },
+  'open-book': { props: ['mat'], a: Object.assign({}, SIDE, { y: 86, l2: [55, -66, -30, .7], a1: [40, 0, .45, .45], a2: [36, 0, .43, .43] }), b: Object.assign({}, SIDE, { y: 86, l2: [55, -66, -30, .7], hd: 12, a1: [190, 0, .95, .95], a2: [36, 0, .43, .43] }) },
+  'child-pose-side-reach': { props: ['mat'], a: { ground: false, x: 25, y: 82, t: 108, sp: 3, hd: -18, l1: [54.3, 144.3, 180], l2: [52.3, 142.3, 180], a1: [80, 10, 1, 1], a2: [84, 6, 1, 1] }, b: { ground: false, x: 23, y: 86, t: 100, sp: 2, hd: -10, l1: [65.1, 155.1, 180], l2: [63.1, 153.1, 180], a1: [64, 26, .55, .55], a2: [86, 4, .85, .85] } },
+  'sphinx': { props: ['mat'], a: { ground: false, x: 52, y: 93.5, t: 90, sp: 0, hd: -30, l1: [-88, 0, 180], l2: [-87, 0, 180], a1: [66, 24, .4], a2: [62, 28, .4] }, b: { ground: false, x: 52, y: 93.5, t: 62, sp: -2.5, hd: -12, l1: [-88, 0, 180], l2: [-87, 0, 180], a1: [0, 90, 1], a2: [-4, 94, 1] } },
+  'wall-slide': { view: 'front', a: { arms: [90, 90] }, b: { arms: [128, 24] } },
+  'sleeper-stretch': { props: ['mat'], a: Object.assign({}, SIDE, { a1: [-15, 195, .35], a2: [92, 0] }), b: Object.assign({}, SIDE, { a1: [-15, 155, .35], a2: [187.8, -147] }) },
+  'supine-twist': { props: ['mat'], a: { ground: false, x: 50, y: 93.5, t: -90, hd: 8, l1: [135, 103, 0, 1, 1], l2: [131, 99, 0, 1, 1], a1: [0, 0, .12, .12], a2: [0, 0, .12, .12] }, b: { ground: false, x: 50, y: 92, t: -90, hd: 8, l1: [128, 60, -10, .58, .82], l2: [112, 50, -10, .52, .78], a1: [0, 0, .12, .12], a2: [0, 0, .12, .12] } }
 };
 
 /* Turn a pose into joints, grounded on the floor unless it is held up by the kit */
@@ -123,7 +147,7 @@ function solve(m, p) {
     const q = Object.assign({ x: 50, y: 50 }, p);
     if (q.sit) { q.y = 62; q.ls = .45; }
     const j = front(q);
-    if (!q.sit) { const low = Math.max(j.r.ank[1], j.l.ank[1]); const dy = FLOOR - low; shiftF(j, dy); }
+    if (!q.sit && q.ground !== false) { const low = Math.max(j.r.ank[1], j.l.ank[1]); const dy = FLOOR - low; shiftF(j, dy); }
     return j;
   }
   const j = side(p);
@@ -210,6 +234,10 @@ function kit(m, j) {
       case 'benchfeet': back += '<path class="kit pad" d="M' + f(j.l1.ank[0] - 8) + ' ' + f(j.l1.ank[1] + 5) + 'H' + f(j.l1.ank[0] + 8) + '" stroke-width="4.4"/><path class="kit" d="M' + f(j.l1.ank[0]) + ' ' + f(j.l1.ank[1] + 7) + 'V' + (FLOOR + 1) + '" stroke-width="1.6"/>'; break;
       case 'benchback': back += '<path class="kit pad" d="M' + f(j.l2.toe[0] - 10) + ' ' + f(j.l2.ank[1] + 4) + 'H' + f(j.l2.toe[0] + 6) + '" stroke-width="4.4"/><path class="kit" d="M' + f(j.l2.toe[0] - 2) + ' ' + f(j.l2.ank[1] + 6) + 'V' + (FLOOR + 1) + '" stroke-width="1.6"/>'; break;
       case 'rowbench': back += '<path class="kit pad" d="M' + f(j.l1.knee[0] - 6) + ' ' + f(j.l1.knee[1] + 4) + 'H' + f(j.a2.hand[0] + 6) + '" stroke-width="4.4"/><path class="kit" d="M' + f(j.l1.knee[0]) + ' ' + f(j.l1.knee[1] + 6) + 'V' + (FLOOR + 1) + 'M' + f(j.a2.hand[0]) + ' ' + f(j.l1.knee[1] + 6) + 'V' + (FLOOR + 1) + '" stroke-width="1.6"/>'; break;
+      case 'mat': back += '<path class="kit pad" d="M4 ' + (FLOOR + .2) + 'H96" stroke-width="2.6"/>'; break;
+      case 'wallL': back += '<path class="kit" d="M' + f(Math.min(j.l1.toe[0], j.l2.toe[0], j.l1.knee[0], j.l2.knee[0]) - 3) + ' 18V' + (FLOOR + 1.6) + '" stroke-width="2.4"/>'; break;
+      case 'wallR': back += '<path class="kit" d="M' + f(Math.max(j.l1.toe[0], j.l2.toe[0]) + 9) + ' 18V' + (FLOOR + 1.6) + '" stroke-width="2.4"/>'; break;
+      case 'towel': fr += '<path class="kit cable" d="M' + f(h1[0]) + ' ' + f(h1[1]) + 'L' + f(j.l1.toe[0]) + ' ' + f(j.l1.toe[1]) + 'M' + f(h2[0]) + ' ' + f(h2[1]) + 'L' + f(j.l1.ank[0]) + ' ' + f(j.l1.ank[1]) + '" stroke-width="1.6"/>'; break;
       case 'box1': back += '<rect class="kit pad2" x="' + f(j.l1.ank[0] - 8) + '" y="' + f(j.l1.ank[1] + 1.5) + '" width="20" height="' + f(FLOOR + 1 - j.l1.ank[1] - 1.5) + '" stroke-width="1.6"/>'; break;
       case 'hyper': back += '<path class="kit pad" d="M' + f(j.hip[0] - 4) + ' ' + f(j.hip[1] + 5) + 'l-8 8" stroke-width="4.4"/><path class="kit" d="M' + f(j.l1.ank[0] - 2) + ' ' + f(j.l1.ank[1] + 4) + 'L' + f(j.hip[0] - 10) + ' ' + (FLOOR + 1) + 'M' + f(j.hip[0] - 6) + ' ' + f(j.hip[1] + 10) + 'V' + (FLOOR + 1) + '" stroke-width="1.6"/>'; break;
       case 'preacher': back += '<path class="kit pad" d="M' + f(j.sh[0] + 2) + ' ' + f(j.sh[1] + 4) + 'L' + f(j.a1.el[0] + 4) + ' ' + f(j.a1.el[1] + 4) + '" stroke-width="4.4"/><path class="kit" d="M' + f(j.sh[0] + 4) + ' ' + f(j.sh[1] + 6) + 'V' + (FLOOR + 1) + '" stroke-width="1.6"/>'; break;
@@ -236,7 +264,10 @@ function body(j) {
   }
   const far = line(j.hip, j.l2.knee, 7, 'far') + line(j.l2.knee, j.l2.ank, 6.2, 'far') + line(j.l2.ank, j.l2.toe, 4.4, 'far') + line(j.sh, j.a2.el, 6, 'far') + line(j.a2.el, j.a2.hand, 5.4, 'far');
   const near = line(j.hip, j.l1.knee, 7.4, 'lb') + line(j.l1.knee, j.l1.ank, 6.6, 'lb') + line(j.l1.ank, j.l1.toe, 4.6, 'lb');
-  const torso = line(j.hip, j.sh, 9.6, 'tb') + line(j.sh, [j.sh[0] + (j.head[0] - j.sh[0]) * .35, j.sh[1] + (j.head[1] - j.sh[1]) * .35], 5, 'tb') + '<circle class="hd" cx="' + f(j.head[0]) + '" cy="' + f(j.head[1]) + '" r="6.6"/>';
+  /* sp bends the spine: + rounds the back (towards the back of the body), - arches it. Used by the mobility moves. */
+  let spine = line(j.hip, j.sh, 9.6, 'tb');
+  if (j.sp) { const R0 = Math.PI / 180, nx = -Math.cos(j.t * R0), ny = -Math.sin(j.t * R0), mx = (j.hip[0] + j.sh[0]) / 2 + nx * j.sp * 2, my = (j.hip[1] + j.sh[1]) / 2 + ny * j.sp * 2; spine = '<path class="tb" d="M' + f(j.hip[0]) + ' ' + f(j.hip[1]) + 'Q' + f(mx) + ' ' + f(my) + ' ' + f(j.sh[0]) + ' ' + f(j.sh[1]) + '" stroke-width="9.6" fill="none"/>'; }
+  const torso = spine + line(j.sh, [j.sh[0] + (j.head[0] - j.sh[0]) * .35, j.sh[1] + (j.head[1] - j.sh[1]) * .35], 5, 'tb') + '<circle class="hd" cx="' + f(j.head[0]) + '" cy="' + f(j.head[1]) + '" r="6.6"/>';
   const arm = line(j.sh, j.a1.el, 6.4, 'lb') + line(j.a1.el, j.a1.hand, 5.8, 'lb');
   return { far: '<g class="fig far">' + far + '</g>', near: '<g class="fig">' + near + torso + '</g>', arm: '<g class="fig">' + arm + '</g>' };
 }
@@ -255,6 +286,8 @@ export function pair(id) {
   return '<div class="filmstrip"><div class="fr"><span class="fl">1</span>' + frameSvg(m, m.a) + '</div><div class="fr"><span class="fl">2</span>' + frameSvg(m, m.b) + '</div></div>';
 }
 export function still(id, which) { const m = POSES[id]; return m ? frameSvg(m, which === 'b' ? m.b : m.a) : ''; }
+/* One in-between frame of the move, at fraction k from start to end */
+export function tween(id, k) { const m = POSES[id]; return m ? frameSvg(m, lerpP(m.a, m.b, k)) : ''; }
 /* The move, played between its two frames: out, hold, back, hold */
 export function play(el, id, period = 2600) {
   const m = POSES[id]; if (!m || !el) return () => {};

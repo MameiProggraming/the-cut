@@ -50,15 +50,49 @@ export const SESSIONS = {
   }
 };
 
-/* 0 = Sunday. Gym is morning, tennis is evening. */
+/* Mobility (added at Rashed's request, 20 Nov 2026): two floor sessions of about 15 minutes, no weights,
+   for the days without the gym. A move has either reps or a hold in seconds; per: 'side' doubles it.
+   Tints are the first build's choice and open to his change: M1 Rose, M2 Orchid. */
+export const MOBILITY = {
+  M1: {
+    id: 'M1', mob: true, title: 'Hips & Legs', light: '#FFA3B8', lic: '255,150,175', tint: 'Rose',
+    when: 'Sunday and Thursday', note: 'About fifteen quiet minutes on the floor, no weights. Breathe slowly and stay where you feel a stretch, never pain.',
+    moves: [
+      { ex: 'hip-90-90', sets: 2, reps: '8' },
+      { ex: 'worlds-greatest-stretch', sets: 1, reps: '5', per: 'side' },
+      { ex: 'couch-stretch', sets: 1, hold: 45, per: 'side' },
+      { ex: 'cossack-squat', sets: 2, reps: '6', per: 'side' },
+      { ex: 'deep-squat-hold', sets: 2, hold: 45 },
+      { ex: 'ankle-rocks', sets: 1, reps: '10', per: 'side' },
+      { ex: 'supine-hamstring-stretch', sets: 1, hold: 45, per: 'side' },
+      { ex: 'pigeon-stretch', sets: 1, hold: 45, per: 'side' }
+    ]
+  },
+  M2: {
+    id: 'M2', mob: true, title: 'Back & Shoulders', light: '#EFA6E8', lic: '235,150,230', tint: 'Orchid',
+    when: 'Tuesday and Saturday', note: 'For the back and the serving shoulder. Slow and controlled: every move should feel easier on the last rep than the first.',
+    moves: [
+      { ex: 'cat-cow', sets: 1, reps: '10' },
+      { ex: 'thread-the-needle', sets: 1, reps: '8', per: 'side' },
+      { ex: 'open-book', sets: 1, reps: '8', per: 'side' },
+      { ex: 'child-pose-side-reach', sets: 1, hold: 30, per: 'side' },
+      { ex: 'sphinx', sets: 1, hold: 60 },
+      { ex: 'wall-slide', sets: 2, reps: '10' },
+      { ex: 'sleeper-stretch', sets: 1, hold: 30, per: 'side' },
+      { ex: 'supine-twist', sets: 1, hold: 45, per: 'side' }
+    ]
+  }
+};
+
+/* 0 = Sunday. Gym is morning, tennis is evening. Mobility is any time on the days without the gym. */
 export const WEEK = [
-  { gym: null, tennis: true },
+  { gym: null, tennis: true, mob: 'M1' },
   { gym: 'A', tennis: true },
-  { gym: null, tennis: true },
+  { gym: null, tennis: true, mob: 'M2' },
   { gym: 'B', tennis: true },
-  { gym: null, tennis: true },
+  { gym: null, tennis: true, mob: 'M1' },
   { gym: 'C', tennis: false, hardest: true },
-  { gym: null, tennis: false, rest: true }
+  { gym: null, tennis: false, rest: true, mob: 'M2' }
 ];
 
 /* The template day. Meals are picked from the bank; these are the defaults for each slot. */

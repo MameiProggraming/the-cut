@@ -1,5 +1,5 @@
 /* Shared helpers: elements, language, the data as the app sees it, the day's plan, sound and the toast. */
-import { SESSIONS, WEEK, SLOTS, PRE_GYM, TARGET, START } from './data/program.js';
+import { SESSIONS, MOBILITY, WEEK, SLOTS, PRE_GYM, TARGET, START } from './data/program.js';
 import { MEALS } from './data/meals.js';
 import { EXERCISES, ALTS, EQUIPMENT } from './data/exercises.js';
 import { bank, settings, ymd, parseYmd, daysBetween, addDays, today } from './store.js';
@@ -83,7 +83,7 @@ export const mealName = (m) => m ? tr('meals', m.id, 'name', m.name) : '';
 
 export function ex(id) { return EXERCISES[id] ? Object.assign({ id }, EXERCISES[id]) : null; }
 export const exName = (e) => e ? tr('exercises', e.id, 'name', e.name) : '';
-export { SESSIONS, WEEK, SLOTS, TARGET, EXERCISES, ALTS, EQUIPMENT, START };
+export { SESSIONS, MOBILITY, WEEK, SLOTS, TARGET, EXERCISES, ALTS, EQUIPMENT, START };
 
 /* My gym: which equipment it has. Unknown means assume yes. */
 export function hasEquipment(e) {
@@ -100,6 +100,11 @@ export function weekNo(d = ymd()) {
 }
 export function dow(d = ymd()) { return parseYmd(d).getDay(); }
 export function sessionFor(d = ymd()) { const g = WEEK[dow(d)].gym; return g ? SESSIONS[g] : null; }
+/* Mobility days: the days without the gym carry M1 or M2 */
+export function mobFor(d = ymd()) { const m = WEEK[dow(d)].mob; return m ? MOBILITY[m] : null; }
+export const sessById = (id) => SESSIONS[id] || MOBILITY[id] || null;
+/* Rough length of a mobility session, to the nearest 5 minutes: reps at 4 s each, holds as written, 10 s to change over */
+export function mobMinutes(s) { let sec = 0; for (const m of s.moves) { const sides = m.per ? 2 : 1, one = m.hold ? m.hold : (parseInt(m.reps, 10) || 8) * 4; sec += m.sets * sides * (one + 10) + 20; } return Math.max(5, Math.round(sec / 300) * 5); }
 export function nextSession(d = ymd()) {
   for (let i = 0; i < 8; i++) { const day = addDays(d, i), s = sessionFor(day); if (s) return { s, day, in: i }; }
   return null;

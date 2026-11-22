@@ -1,5 +1,5 @@
 /* Printing to PDF: the dark screens get their own light document, built from whatever tab is open. */
-import { h, $, t, tr, fmt, fmt1, mealName, allMeals, daySlots, totals, ex, exName, SESSIONS, WEEK, dayName, dateShort, weekNo } from './core.js';
+import { h, $, t, tr, fmt, fmt1, mealName, allMeals, daySlots, totals, ex, exName, SESSIONS, MOBILITY, WEEK, dayName, dateShort, weekNo } from './core.js';
 import { weights } from './store.js';
 import { qty, ingText, mealSteps, mealTip } from './meal.js';
 import { moveEx, repsText, restFor } from './train.js';
@@ -22,7 +22,13 @@ function build(view) {
         h('table', null, h('thead', null, h('tr', null, ...['', t('Exercise'), t('Sets'), t('Rest'), t('Cues')].map(x => h('th', { text: x })))),
           h('tbody', null, ...s.moves.map((m, i) => { const e = moveEx(s, i); return h('tr', null, h('td', { text: String(i + 1) }), h('td', null, h('b', { text: exName(e) }), m.hint ? h('div', { text: t(m.hint) }) : null), h('td', { text: repsText(m) }), h('td', { text: restFor(e) + ' s' }), h('td', { text: tr('exercises', e.id, 'cues', e.cues || []).join('. ') + '.' })); })))));
     });
-    p.append(h('h2', { text: t('The week') }), h('ul', null, ...WEEK.map((w, i) => h('li', { text: dayName(i) + ': ' + (w.rest ? t('Full rest') : [w.gym ? t('Session {s}', { s: w.gym }) : null, w.tennis ? t('Tennis') : null].filter(Boolean).join(', ')) }))));
+    p.append(h('h1', { text: t('Mobility') }), h('p', { text: t('Floor work at home on the days without the gym. No weights and no rest between moves. Stay at a stretch, never pain.') }));
+    Object.values(MOBILITY).forEach(s => {
+      p.append(h('section', null, h('h2', { text: t('Mobility {s}', { s: s.id }) + ': ' + tr('sessions', s.id, 'title', s.title) + ' — ' + WEEK.map((d, n) => d.mob === s.id ? dayName(n) : null).filter(Boolean).join(', ') }), h('p', { text: tr('sessions', s.id, 'note', s.note) }),
+        h('table', null, h('thead', null, h('tr', null, ...['', t('Exercise'), t('Dose'), t('Cues')].map(x => h('th', { text: x })))),
+          h('tbody', null, ...s.moves.map((m, i) => { const e = ex(m.ex); return h('tr', null, h('td', { text: String(i + 1) }), h('td', null, h('b', { text: exName(e) })), h('td', { text: repsText(m) }), h('td', { text: tr('exercises', e.id, 'cues', e.cues || []).join('. ') + '.' })); })))));
+    });
+    p.append(h('h2', { text: t('The week') }), h('ul', null, ...WEEK.map((w, i) => h('li', { text: dayName(i) + ': ' + [w.rest ? t('Rest') : null, w.gym ? t('Session {s}', { s: w.gym }) : null, w.mob ? t('Mobility {s}', { s: w.mob }) : null, w.tennis ? t('Tennis') : null].filter(Boolean).join(', ') }))));
   } else if (view === 'eat') {
     p.append(h('h1', { text: t('The meal bank') }));
     ['breakfast', 'lunch', 'dinner', 'snack'].forEach(c => { const l = allMeals().filter(m => m.cat === c); if (l.length) { p.append(h('h2', { text: t({ breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snacks' }[c]) })); l.forEach(m => p.append(mealBlock(m))); } });

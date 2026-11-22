@@ -706,3 +706,66 @@
   .band:hover b{color:var(--li)}
   .seg button:not([aria-selected=true]):not([aria-checked=true]):hover,.reelseg button:not([aria-selected=true]):hover{color:var(--bone);box-shadow:inset 0 0 0 1.5px var(--dim)}
 }
+
+/* Mobility (M1, M2): two sessions under the three gym ones, a two-character letter, and their line on Today */
+.reelseg.five{grid-template-columns:repeat(6,1fr)}
+.reelseg.five button{grid-column:span 2}
+.reelseg.five button.mob{grid-column:span 3;min-height:calc(var(--u)*60)}
+.reelseg.five button.mob b{font-size:calc(var(--u)*30)}
+.sletter.two{font-size:calc(var(--u)*112);letter-spacing:-.03em}
+@media (min-width:900px){.sletter.two{font-size:calc(var(--u)*210);top:calc(var(--st) + var(--u)*30)}}
+
+/* The cast's headshots: every ingredient as a photo of what is sold here, printed on bone paper so white
+   pack shots and fresh food share one frame (multiply turns the white ground to paper) */
+.cols.stack{grid-template-columns:1fr;row-gap:calc(var(--u)*30)}
+.cols.stack::before{display:none}
+.cols.stack .cast,.cols.stack .scenes{padding:0 var(--m)}
+.heads{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:calc(var(--u)*16) calc(var(--w)*10)}
+.hs{display:grid;align-content:start;text-align:start;color:var(--bone);min-width:0}
+.hsph{position:relative;display:grid;place-items:center;aspect-ratio:1;overflow:hidden;border-radius:calc(var(--u)*2);background:#ECE1D0;box-shadow:0 10px 28px rgba(0,0,0,.42)}
+.hsph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;mix-blend-mode:multiply}
+.hsph b{font-family:var(--serif);font-weight:900;font-variation-settings:"opsz" 6;font-size:calc(var(--u)*40);color:#8C7A66}
+.hs .num{--ts:max(.4px,calc(var(--u)*.5));margin-top:calc(var(--u)*8);font-weight:800;font-size:max(15px,calc(var(--u)*17));line-height:1;color:var(--li);white-space:nowrap}
+.hs .nm{margin-top:calc(var(--u)*3);font-size:max(13.5px,calc(var(--u)*14));line-height:1.22;font-weight:500;overflow-wrap:anywhere}
+.hs .for{margin-top:calc(var(--u)*2);font-size:max(12px,calc(var(--u)*12.5));color:var(--dim)}
+.hs:active .hsph{transform:scale(.97)}
+.hs:focus-visible{outline:2px solid var(--li);outline-offset:4px}
+
+/* Send to the kitchen: a quiet second action under the main one */
+.tokitchen{display:grid;justify-items:center;gap:calc(var(--u)*3);margin:calc(var(--u)*12) var(--m) 0;width:calc(100% - var(--m)*2);padding:calc(var(--u)*13) calc(var(--w)*12);border-radius:calc(var(--u)*2);box-shadow:inset 0 0 0 1.5px var(--edge);color:var(--bone)}
+.tokitchen .k1{font-family:var(--sans);font-weight:600;font-size:max(13.5px,calc(var(--u)*15));letter-spacing:.16em;text-transform:uppercase}
+.tokitchen:active{background:rgba(var(--lic),.12)}
+
+/* One ingredient, opened */
+.ingc .lbody{padding-bottom:calc(var(--u)*48)}
+.ingpic{padding:calc(var(--st) + var(--u)*64) var(--m) 0;display:grid;justify-items:center}
+.hsph.big{width:min(100%,calc(var(--u)*300))}
+.inghead{display:grid;justify-items:center;gap:calc(var(--u)*6);padding:calc(var(--u)*22) var(--m) 0;text-align:center}
+.inghead h2{margin:0;font-family:var(--serif);font-weight:800;font-variation-settings:"opsz" 16;font-size:calc(var(--u)*34);line-height:1.04;text-wrap:balance}
+.inghead .num{--ts:max(.5px,calc(var(--u)*.6));font-weight:800;font-size:calc(var(--u)*24);color:var(--li)}
+.ingwhat{margin:calc(var(--u)*16) var(--m) 0;text-align:center;font-size:max(15.5px,calc(var(--u)*17));line-height:1.45;text-wrap:pretty}
+.ingprod{margin:calc(var(--u)*20) var(--m) 0;padding:calc(var(--u)*14) calc(var(--w)*16);box-shadow:inset 0 0 0 1px var(--edge);border-radius:calc(var(--u)*2)}
+.ingprod p{margin:calc(var(--u)*4) 0 0;font-size:max(15px,calc(var(--u)*16));font-weight:500}
+.ingc .acts2{padding:calc(var(--u)*20) var(--m) 0}
+.ingc a.go{text-decoration:none}
+.ingcred{margin:calc(var(--u)*18) var(--m) 0;font-size:max(12px,calc(var(--u)*12.5));line-height:1.4;color:var(--dim);text-align:center}
+.ingcred a{color:var(--dim);text-underline-offset:3px}
+
+@media (min-width:900px){
+  .heads{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .ingc .lbody{--cw:calc(var(--u)*560)}
+}
+
+/* For the kitchen: the language switch, the card, and its two ways out */
+.khead{padding:calc(var(--st) + var(--u)*64) var(--m) 0;text-align:center}
+.khead h2{margin:0;font-family:var(--serif);font-weight:800;font-variation-settings:"opsz" 16;font-size:calc(var(--u)*34);line-height:1}
+.khead .sdesc{margin:calc(var(--u)*10) auto 0;max-width:34ch;text-wrap:balance}
+.kseg{margin:calc(var(--u)*18) var(--m) calc(var(--u)*16)}
+.knote{margin:0 var(--m) calc(var(--u)*14);text-align:center}
+.kacts{padding:calc(var(--u)*18) var(--m) calc(var(--u)*40)}
+.kitchen .exsheet{min-height:calc(var(--u)*200)}
+.kitchen .lbody>*{align-self:stretch}
+.kseg button{flex:1}
+.kitchen .lbody>*{flex-shrink:0}
+.kitchen .exsheet{display:grid;gap:calc(var(--u)*14)}
+.kseg button{justify-content:center;text-align:center}

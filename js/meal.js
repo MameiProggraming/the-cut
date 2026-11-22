@@ -4,7 +4,9 @@
 import { h, add, $, qs, qsa, t, tr, fmt, esc, mealName, allMeals, mealById, bus, toast, sound, CHECK, daySlots } from './core.js';
 import { bank, today as day, photos, compress } from './store.js';
 import { openLayer, closeTop } from './sheet.js';
-import { exportMeal } from './card.js';
+import { exportMeal, exportKitchen } from './card.js';
+import { headshot, openIngredient } from './ing.js';
+import { KITCHEN } from './data/kitchen.js';
 import { openScan } from './scan.js';
 
 export const CATS = [['breakfast', 'Breakfast'], ['lunch', 'Lunch'], ['dinner', 'Dinner'], ['snack', 'Snack']];
@@ -21,6 +23,12 @@ export function ingText(m, i, idx) {
   return it + (i.prep ? ', ' + (tr('prep', i.prep, 'v', i.prep)) : '');
 }
 export const mealSteps = (m) => tr('meals', m.id, 'steps', m.steps || []);
+/* Where the brief gives no amount, the kitchen version has one (salad 100 g, olive oil 5 g...) */
+export function kitAmt(m, i) {
+  const k = KITCHEN[m.id]; if (!k || i.q != null) return '';
+  const x = k.ing.find(y => y.item === i.item && !y.extra);
+  return x && x.q != null && (x.u === 'g' || x.u === 'ml') ? x.q + ' ' + x.u : '';
+}
 export const mealTip = (m) => tr('meals', m.id, 'tip', m.tip);
 
 /* His food photo, or the designed placeholder in the same frame */
@@ -81,10 +89,17 @@ function fillMeal(b, m, slot) {
         h('span', { text: (m.f != null ? m.f + ' g ' + t('fat') : '') })),
       m.est ? h('p.estn', { text: t('Carbs and fat are estimates from the listed grams.') }) : null),
     h('div.macts', null, main),
+    h('button.tokitchen', { type: 'button', onclick: (e) => exportKitchen(m, e.currentTarget) }, h('span.k1', { text: t('Send to the kitchen') }), h('span.lab', { text: t('Grams and every step, in Bahasa Indonesia') })),
     slot ? swapList(m, slot, b) : null,
-    h('div.cols', null,
+    h('div.cols.stack', null,
       h('section.cast', null, h('h3.it', { text: t('Starring') }),
-        ...(m.ing || []).map((i, idx, all) => h('div.ci', null, h('b.num', { text: qty(i) }), h('span', null, ingText(m, i, idx), i.for && (!all[idx + 1] || all[idx + 1].for !== i.for) ? h('span.for', { text: t('for the {x}', { x: t(i.for) }) }) : null)))),
+        h('div.heads', null, ...(m.ing || []).map((i, idx, all) => {
+          const amt = qty(i) || kitAmt(m, i), label = ingText(m, i, idx);
+          const forL = i.for && (!all[idx + 1] || all[idx + 1].for !== i.for) ? t('for the {x}', { x: t(i.for) }) : null;
+          const btn = h('button.hs', { type: 'button', 'aria-label': (amt ? amt + ' ' : '') + label + '. ' + t('What it is and where to buy it'), onclick: () => openIngredient(i.item, label, amt, btn) },
+            headshot(i.item), h('b.num', { text: amt || '\u00a0' }), h('span.nm', { text: label }), forL ? h('span.for', { text: forL }) : null);
+          return btn;
+        }))),
       h('section.scenes', null, h('h3.it', { text: t('Scenes') }),
         steps.length ? h('ol', null, ...steps.map((s, n) => h('li', null, h('b.num', { text: String(n + 1) }), h('span', { text: s })))) : h('p.lab', { text: t('No steps yet.') }))),
     tip ? h('p.mtip', { text: tip }) : null,
