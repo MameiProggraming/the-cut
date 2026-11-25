@@ -2,7 +2,7 @@
    grows the image rather than shrinking the text. His food photo sits on top once he has shot it. */
 import { h, add, t, fmt, mealName, toast } from './core.js';
 import { openLayer } from './sheet.js';
-import { foodUrl, qty, ingText, mealSteps, mealTip, kitAmt } from './meal.js';
+import { foodUrl, mealArt, qty, ingText, mealSteps, mealTip, kitAmt } from './meal.js';
 import { ingInfo } from './ing.js';
 import { KITCHEN, KITCHEN_UI, KITCHEN_BATCH } from './data/kitchen.js';
 
@@ -40,8 +40,8 @@ function heavy(c, text, x, y, sw) { c.fillText(text, x, y); if (sw) { c.lineWidt
 
 export async function drawCard(m) {
   await fonts();
-  const photo = await foodUrl(m.id);
-  const pic = await loadImg(photo || 'art/card-top.webp');
+  const photo = await foodUrl(m.id), art = photo ? null : mealArt(m);
+  const pic = await loadImg(photo || art || 'art/card-top.webp');
   const rtl = document.documentElement.dir === 'rtl';
   /* Measure first, on a scratch canvas, so the image can grow */
   const s = document.createElement('canvas').getContext('2d');
@@ -73,11 +73,11 @@ export async function drawCard(m) {
   g.addColorStop(0, C.ground); g.addColorStop(590 / H, C.ground); g.addColorStop(690 / H, C.mid); g.addColorStop(Math.min(1, 1080 / H), C.ground); g.addColorStop(1, C.ground);
   c.fillStyle = g; c.fillRect(0, 0, W, H);
   if (pic) {
-    const ar = pic.naturalWidth / pic.naturalHeight, bw = W, bh = 590; let sw = pic.naturalWidth, sh = sw / (bw / bh), sx = 0, sy = (pic.naturalHeight - sh) * .3;
+    const ar = pic.naturalWidth / pic.naturalHeight, bw = W, bh = 590; let sw = pic.naturalWidth, sh = sw / (bw / bh), sx = 0, sy = (pic.naturalHeight - sh) * (art ? .5 : .3);
     if (sh > pic.naturalHeight) { sh = pic.naturalHeight; sw = sh * bw / bh; sx = (pic.naturalWidth - sw) / 2; sy = 0; }
     c.drawImage(pic, sx, Math.max(0, sy), sw, sh, 0, 0, bw, bh);
     const fg = c.createLinearGradient(0, 400, 0, 590); fg.addColorStop(0, 'rgba(11,6,4,0)'); fg.addColorStop(1, C.ground);
-    if (photo) { c.fillStyle = fg; c.fillRect(0, 400, W, 191); }
+    if (photo || art) { c.fillStyle = fg; c.fillRect(0, 400, W, 191); }
   }
   c.textBaseline = 'alphabetic'; c.textAlign = 'center';
   c.fillStyle = C.bone; serif(c, 800, tsize);
@@ -205,8 +205,8 @@ function amount(i, lng) {
 export async function drawKitchen(m, lng, part) {
   await fonts();
   const k = kitchenOf(m, lng, part);
-  const photo = await foodUrl(m.id);
-  const pic = await loadImg(photo || 'art/card-top.webp');
+  const photo = await foodUrl(m.id), art = photo ? null : mealArt(m);
+  const pic = await loadImg(photo || art || 'art/card-top.webp');
   const main = k.ing.filter(i => !i.extra), extras = k.ing.filter(i => i.extra);
   const imgs = await ingImages(main.map(i => i.item));
   const MX = 64, TH = 156, TX = MX + TH + 30, TW = W - TX - MX;
@@ -251,7 +251,7 @@ export async function drawKitchen(m, lng, part) {
   const c = cv.getContext('2d');
   c.fillStyle = C.ground; c.fillRect(0, 0, W, H);
   if (pic) {
-    const bh = 420; let sw = pic.naturalWidth, sh = sw / (W / bh), sx = 0, sy = (pic.naturalHeight - sh) * .35;
+    const bh = 420; let sw = pic.naturalWidth, sh = sw / (W / bh), sx = 0, sy = (pic.naturalHeight - sh) * (art ? .5 : .35);
     if (sh > pic.naturalHeight) { sh = pic.naturalHeight; sw = sh * W / bh; sx = (pic.naturalWidth - sw) / 2; sy = 0; }
     c.drawImage(pic, sx, Math.max(0, sy), sw, sh, 0, 0, W, bh);
     const fg = c.createLinearGradient(0, 230, 0, 421); fg.addColorStop(0, 'rgba(11,6,4,0)'); fg.addColorStop(1, C.ground);

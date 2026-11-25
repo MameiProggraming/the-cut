@@ -39,10 +39,22 @@ export async function foodUrl(id) {
   if (rec && rec.blob) { urls[id] = URL.createObjectURL(rec.blob); return urls[id]; }
   return null;
 }
+/* Stand-ins: each starter meal has a picture made in one style (from above, dark plate, low-key light) so the
+   bank is never a wall of empty plates. They are generated, not his food: his own photo replaces one for good
+   the first time he shoots that meal. 'art/meals/<id>.webp' is 1080 square for the card and the exports,
+   'art/meals/s/<id>.webp' is 480 for the tiles. */
+const ART = new Set(['greek-yogurt-power-bowl', 'eggs-labneh-toast', 'chicken-sausage-shakshuka', 'protein-oats',
+  'chicken-shawarma-bowl', 'beef-kofta-plate', 'tuna-white-bean-salad', 'smoked-chicken-potato',
+  'grilled-salmon-freekeh', 'lightened-chicken-machboos', 'harra-prawns-bulgur', 'steak-sweet-potato',
+  'cottage-cheese-dates', 'ice-blast-shake', 'eggs-labneh', 'smoked-turkey-roll-ups', 'coffee-banana']);
+export const mealArt = (m, small) => m && (m.starter || m.builtin) && ART.has(m.id) ? 'art/meals/' + (small ? 's/' : '') + m.id + '.webp' : null;
+
 export function plate(m, big) {
-  const fr = h('span.plate' + (big ? '.big' : ''), null, h('i.dish'), h('i.key'), h('span.grain'));
-  if (big) fr.append(h('span.pcap', { text: t('No photo yet. Shoot it the first time you cook it.') }));
-  foodUrl(m.id).then(u => { if (u) { fr.classList.add('has'); fr.prepend(h('img', { src: u, alt: mealName(m) })); } });
+  const art = mealArt(m, !big);
+  const fr = h('span.plate' + (big ? '.big' : '') + (art ? '.has.stand' : ''), null, h('i.dish'), h('i.key'), h('span.grain'));
+  if (art) fr.prepend(h('img', { src: art, alt: mealName(m), loading: big ? 'eager' : 'lazy', decoding: 'async' }));
+  if (big) fr.append(h('span.pcap', { text: art ? t('Stand-in until you shoot yours.') : t('No photo yet. Shoot it the first time you cook it.') }));
+  foodUrl(m.id).then(u => { if (u) { const old = qs('img', fr); if (old) old.remove(); fr.classList.add('has'); fr.classList.remove('stand'); fr.prepend(h('img', { src: u, alt: mealName(m) })); } });
   return fr;
 }
 export function pickPhoto(id, done) {

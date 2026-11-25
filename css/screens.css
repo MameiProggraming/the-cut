@@ -95,6 +95,9 @@
 .plate .key{position:absolute;inset:0;background:radial-gradient(60% 48% at 30% 22%,rgba(255,196,138,.2),rgba(255,196,138,0) 70%)}
 .plate .grain{position:absolute;inset:0;opacity:.12;background:url(../art/grain.webp) 0 0/110px 110px}
 .plate.has .dish,.plate.has .key,.plate.has .pcap{display:none}
+/* A stand-in picture: the caption stays, on a fade so it reads over the food */
+.plate.stand.big::after{content:"";position:absolute;inset:auto 0 0;height:42%;background:linear-gradient(rgba(11,6,4,0),rgba(11,6,4,.78))}
+.plate.has.stand .pcap{display:block;z-index:1}
 .plate .pcap{position:absolute;left:var(--m);right:calc(var(--w)*120);bottom:calc(var(--u)*18);text-align:left;line-height:1.3;font-size:max(13px,calc(var(--u)*13.5));color:var(--dim)}
 .mpic .plate .dish{width:56%}
 

@@ -275,6 +275,7 @@ export const AR = {
   'for the {x}': 'في {x}',
   'marinade': 'التتبيلة',
   'No photo yet. Shoot it the first time you cook it.': 'لا صورة بعد. صوّرها أول مرة تطبخها.',
+  'Stand-in until you shoot yours.': 'صورة بديلة حتى تصوّر طبقك.',
   'Photo saved.': 'حُفظت الصورة.',
   'That photo could not be read. Try another.': 'تعذّرت قراءة الصورة. جرّب صورة أخرى.',
   'Export': 'تصدير',
